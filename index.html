@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>银行智能投顾助手</title>
+  <meta name="description" content="一个用于演示的银行智能投顾聊天助手前端页面（无后台）" />
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --subtle: #6b7280;
+      --primary: #155eef; /* 银行业蓝 */
+      --primary-600: #1f49c6;
+      --accent: #10b981; /* 建议/正向 */
+      --danger: #ef4444; /* 风险提示 */
+      --border: #e5e7eb;
+      --user: #edf2ff;
+      --bot: #f1f5f9;
+      --chip: #eef2ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, #eaf0ff, transparent),
+                  radial-gradient(1000px 500px at 110% -10%, #e8fff7, transparent),
+                  var(--bg);
+    }
+
+    .app-shell {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(145deg, var(--primary), #4895ff);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .title {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .title b { font-size: 16px; }
+    .title span { font-size: 12px; color: var(--subtle); }
+
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .btn-primary { border-color: transparent; background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-600); }
+
+    main {
+      flex: 1;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 18px auto 20px;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, #ffffff, #f9fbff);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--subtle);
+      font-size: 14px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--chip);
+      color: #1e3a8a;
+      border: 1px dashed #c7d2fe;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .chip:hover { background: #e1e7ff; }
+
+    .chat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 55vh;
+      max-height: 70vh;
+      overflow: hidden;
+    }
+
+    .messages {
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: white;
+    }
+    .avatar-bot { background: linear-gradient(145deg, #1e40af, #155eef); }
+    .avatar-user { background: linear-gradient(145deg, #0ea5e9, #0369a1); }
+
+    .bubble {
+      border: 1px solid var(--border);
+      background: var(--bot);
+      padding: 12px 14px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .bubble.user { background: var(--user); }
+
+    .meta {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--subtle);
+    }
+
+    .alloc-table {
+      margin-top: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .alloc-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .alloc-table th,
+    .alloc-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .alloc-table tr:last-child td { border-bottom: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 12px;
+      border-radius: 999px;
+      background: #ecfeff;
+      color: #0e7490;
+      border: 1px solid #cffafe;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--subtle);
+    }
+
+    .composer {
+      border-top: 1px solid var(--border);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      background: #fff;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      resize: none;
+      min-height: 48px;
+      max-height: 180px;
+      padding: 12px 44px 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border .15s ease, box-shadow .15s ease;
+    }
+    textarea:focus { border-color: #b7c7ff; box-shadow: 0 0 0 4px #e6ecff; }
+
+    .send {
+      align-self: end;
+      height: 48px;
+      padding: 0 16px;
+    }
+
+    .textarea-actions {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .link { color: var(--primary); text-decoration: none; }
+
+    .loader {
+      display: inline-flex;
+      gap: 4px;
+      vertical-align: middle;
+    }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #64748b; opacity: .6;
+      animation: bounce 1s infinite ease-in-out;
+    }
+    .dot:nth-child(2) { animation-delay: .15s; }
+    .dot:nth-child(3) { animation-delay: .3s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: .5; }
+      40% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    details {
+      margin-top: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    footer {
+      max-width: 960px;
+      margin: 8px auto 24px;
+      padding: 0 16px;
+      color: var(--subtle);
+      font-size: 12px;
+    }
+
+    @media (min-width: 860px) {
+      .hero { grid-template-columns: 1.2fr .8fr; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">🏦</div>
+          <div class="title">
+            <b>智能投顾助手</b>
+            <span>Bank Advisory • 演示版（仅供参考）</span>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <button id="clearBtn" class="btn" title="清空对话">🧹 清空</button>
+          <button id="exportBtn" class="btn" title="导出聊天记录">⬇️ 导出</button>
+          <button id="newChatBtn" class="btn btn-primary" title="新对话">＋ 新对话</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <section class="hero" aria-label="引导区">
+          <div>
+            <h1>欢迎使用银行智能投顾助手</h1>
+            <p>说明：本页面仅用于演示前端交互，无后台数据接入。回复基于简单规则引擎，非实际投顾建议。</p>
+            <div style="margin-top: 10px" class="hint">可以从下方示例提问开始：</div>
+            <div class="chips" style="margin-top: 6px;">
+              <span class="chip" data-fill="我偏好稳健，理财期限3年，目标年化4%，预算20万元，主要考虑教育金">稳健型 · 3年 · 年化4%</span>
+              <span class="chip" data-fill="帮我制定ETF定投计划，期限5年，每月5000元，波动可接受">ETF 定投 · 5年 · 每月5000</span>
+              <span class="chip" data-fill="我想要高流动性、低风险的现金管理方案，预算10万元">现金管理 · 低风险 · 10万</span>
+              <span class="chip" data-fill="激进一些，关注科技主题基金，期限2-3年">主题基金 · 激进 · 2-3年</span>
+            </div>
+          </div>
+          <div>
+            <div class="alloc-table">
+              <table aria-label="示例资产配置表">
+                <thead>
+                  <tr>
+                    <th>资产类别</th>
+                    <th>占比</th>
+                    <th>特征</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>现金及货基</td>
+                    <td>10% - 30%</td>
+                    <td><span class="badge">高流动性</span></td>
+                  </tr>
+                  <tr>
+                    <td>债券/固收+</td>
+                    <td>30% - 60%</td>
+                    <td><span class="badge">稳健收益</span></td>
+                  </tr>
+                  <tr>
+                    <td>股票/权益</td>
+                    <td>10% - 50%</td>
+                    <td><span class="badge">波动较高</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="hint" style="margin-top: 8px">仅为示例范围，真实配置需结合风险偏好、期限与目标。</div>
+          </div>
+        </section>
+
+        <section class="chat-card" aria-label="聊天">
+          <div id="messages" class="messages" role="log" aria-live="polite"></div>
+
+          <div class="composer">
+            <div class="input-wrap">
+              <label for="prompt" class="hint">请输入投资需求（例如：我偏好稳健，期限3年，目标年化4%）：</label>
+              <textarea id="prompt" rows="1" placeholder="输入你的问题，例如：我预算30万，期望稳健增值，理财期限2-3年…"></textarea>
+              <div class="textarea-actions">
+                <button id="suggestBtn" class="btn" title="插入示例">✨ 示例</button>
+              </div>
+            </div>
+            <button id="sendBtn" class="btn btn-primary send">发送</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      风险提示：本工具为演示用途，内容不构成任何投资建议或收益承诺。市场有风险，投资需谨慎。如需个性化方案，请联系持牌投顾并以官方合规文件为准。
+    </footer>
+  </div>
+
+  <script>
+    // ---- 简单工具函数 ----
+    const $ = (sel) => document.querySelector(sel);
+    const nowTime = () => new Date().toLocaleString();
+
+    function autoGrow(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 180) + 'px';
+    }
+
+    function scrollToBottom(container) {
+      container.scrollTop = container.scrollHeight + 200;
+    }
+
+    function download(filename, text) {
+      const element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
+
+    // ---- 简单本地“对话存储” ----
+    const STORAGE_KEY = 'bank_advisor_chat_v1';
+
+    function loadHistory() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+    }
+
+    function saveHistory(messages) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    }
+
+    // ---- 规则引擎：从文本中提取关键信息并生成建议 ----
+    function parseUserIntent(text) {
+      const normalized = text.replace(/\s+/g, '').toLowerCase();
+
+      // 风险偏好
+      let risk = '平衡';
+      if (/保守|低风险|稳健|低波动/.test(text)) risk = '稳健';
+      if (/激进|高风险|进取|进阶/.test(text)) risk = '激进';
+      if (/平衡|中等|适中/.test(text)) risk = '平衡';
+
+      // 期限（按月估算）
+      let months = null;
+      const yearMatch = text.match(/(\d+(?:\.\d+)?)\s*年/);
+      const monthMatch = text.match(/(\d+(?:\.\d+)?)\s*个月/);
+      const rangeMatch = text.match(/(\d+(?:\.\d+)?)\s*[-~到]\s*(\d+(?:\.\d+)?)\s*年/);
+      if (rangeMatch) {
+        months = Math.round(((parseFloat(rangeMatch[1]) + parseFloat(rangeMatch[2])) / 2) * 12);
+      } else if (yearMatch) {
+        months = Math.round(parseFloat(yearMatch[1]) * 12);
+      } else if (monthMatch) {
+        months = Math.round(parseFloat(monthMatch[1]));
+      }
+
+      // 预算金额（人民币）
+      let budget = null;
+      const budgetMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:万|万元|w)/i);
+      const yuanMatch = text.match(/(\d{4,})\s*(?:元|rmb|人民币)?/i);
+      if (budgetMatch) {
+        budget = parseFloat(budgetMatch[1]) * 10000;
+      } else if (yuanMatch) {
+        budget = parseFloat(yuanMatch[1]);
+      }
+
+      // 定投（每月投入）
+      let sipMonthly = null;
+      const sipMatch = text.match(/每月\s*(\d+(?:\.\d+)?)\s*(?:元|rmb)?/);
+      if (sipMatch) sipMonthly = parseFloat(sipMatch[1]);
+      const sipWan = text.match(/每月\s*(\d+(?:\.\d+)?)\s*(?:万|万元)/);
+      if (sipWan) sipMonthly = parseFloat(sipWan[1]) * 10000;
+
+      // 目标年化收益
+      let targetAnnual = null;
+      const ann = text.match(/年化\s*(\d+(?:\.\d+)?)\s*%/);
+      if (ann) targetAnnual = parseFloat(ann[1]);
+
+      // 主题与偏好关键词
+      const interests = [];
+      if (/etf|指数|宽基/.test(normalized)) interests.push('ETF/指数');
+      if (/科技|先进制造|半导体|ai|新能源|数字经济/.test(text)) interests.push('科技主题');
+      if (/现金|货币|余[额]宝|高流动性|现金管理/.test(text)) interests.push('现金管理');
+      if (/债券|固收|逆回购/.test(text)) interests.push('固收');
+      if (/养老|退休/.test(text)) interests.push('养老');
+      if (/教育|子女/.test(text)) interests.push('教育金');
+      if (/买房|房贷|首付/.test(text)) interests.push('置业');
+
+      return { risk, months, budget, sipMonthly, targetAnnual, interests };
+    }
+
+    function buildAllocation(riskLevel, months, interests) {
+      // 基于风险与期限的简单映射
+      const longTerm = months != null ? months >= 36 : true;
+      let cash = 15, bond = 45, equity = 40; // 平衡默认
+      if (riskLevel === '稳健') {
+        cash = longTerm ? 20 : 30;
+        bond = longTerm ? 55 : 50;
+        equity = 100 - cash - bond;
+      } else if (riskLevel === '激进') {
+        cash = longTerm ? 10 : 15;
+        bond = longTerm ? 25 : 35;
+        equity = 100 - cash - bond;
+      }
+
+      // 兴趣偏好加点微调
+      if (interests.includes('现金管理')) { cash = Math.min(40, cash + 10); bond = Math.max(10, bond - 5); equity = 100 - cash - bond; }
+      if (interests.includes('ETF/指数')) { equity = Math.min(70, equity + 5); bond = Math.max(10, bond - 3); cash = 100 - equity - bond; }
+      if (interests.includes('固收')) { bond = Math.min(70, bond + 8); equity = Math.max(5, equity - 6); cash = 100 - equity - bond; }
+
+      return { cash, bond, equity };
+    }
+
+    function formatCurrency(cny) {
+      if (cny == null) return '—';
+      if (cny >= 10000) return (cny/10000).toFixed(2).replace(/\.00$/, '') + ' 万元';
+      return Math.round(cny).toLocaleString('zh-CN') + ' 元';
+    }
+
+    function generateAdvice(intel) {
+      const { risk, months, budget, sipMonthly, targetAnnual, interests } = intel;
+      const alloc = buildAllocation(risk, months, interests);
+
+      const horizonText = months != null ? (months >= 12 ? (months/12).toFixed(1).replace(/\.0$/, '') + ' 年' : months + ' 个月') : '未指定';
+      const interestText = interests.length ? interests.join('、') : '—';
+
+      const recommendations = [];
+
+      // 方案 1：综合配置
+      recommendations.push({
+        title: '综合资产配置方案',
+        summary: '按风险与期限给出现金/固收/权益的基准比例，并可按主题偏好微调。',
+        lines: [
+          `目标风险：${risk}；投资期限：${horizonText}`,
+          `偏好主题：${interestText}；预算：${formatCurrency(budget)}${sipMonthly ? `；每月定投：${formatCurrency(sipMonthly)}` : ''}`,
+          `目标年化：${targetAnnual != null ? targetAnnual + '%（自定目标）' : '未设定'}`
+        ],
+        table: [
+          ['现金及货币类', alloc.cash + '%', '应急/流动性管理'],
+          ['债券/固收+', alloc.bond + '%', '稳健收益基石'],
+          ['股票/权益类', alloc.equity + '%', '中长期增值来源']
+        ]
+      });
+
+      // 方案 2：主题增强
+      if (interests.includes('ETF/指数') || interests.includes('科技主题')) {
+        recommendations.push({
+          title: '主题/指数增强方案',
+          summary: '利用宽基+行业/主题ETF做“核心-卫星”配置，控制单主题暴露。',
+          lines: [
+            '核心：沪深300/中证500/中证全指 等宽基指数；',
+            '卫星：科技/新能源/高端制造 主题ETF 不超过权益的30%-40%。'
+          ],
+          table: [
+            ['核心（宽基ETF）', '权益的 60%-70%', '分散市场 Beta'],
+            ['卫星（主题ETF）', '权益的 30%-40%', '获取超额收益机会'],
+            ['止损与再平衡', '季度/半年度', '纪律性管理波动']
+          ]
+        });
+      }
+
+      // 方案 3：现金管理
+      if (interests.includes('现金管理') || (months != null && months <= 6)) {
+        recommendations.push({
+          title: '现金与流动性管理方案',
+          summary: '强调流动性与本金安全，适合短期或随时可用预算。',
+          lines: [
+            '工具：货币基金、短债基金、银行智能存款、逆回购等；',
+            '目标：在确保流动性的前提下，力争优于活期的稳健收益。'
+          ],
+          table: [
+            ['货币/现金类', '50%-80%', 'T+0/T+1 赎回，流动性高'],
+            ['短债/固收+', '20%-50%', '波动较小，收益略高'],
+            ['提醒', '—', '关注流动性规则与赎回限制']
+          ]
+        });
+      }
+
+      if (recommendations.length === 0) {
+        recommendations.push({
+          title: '基础配置参考',
+          summary: '缺少偏好细节时，提供通用的风险分层配置作为参考。',
+          lines: ['可补充：风险偏好、期限、预算、主题偏好等信息，以获得更精准建议。'],
+          table: [
+            ['现金及货币类', '20%-30%', '应急与短期支出'],
+            ['债券/固收+', '40%-50%', '稳健收益底座'],
+            ['股票/权益类', '20%-40%', '中长期成长']
+          ]
+        });
+      }
+
+      return { alloc, recommendations, risk, horizonText, budgetText: formatCurrency(budget) };
+    }
+
+    // ---- 渲染函数 ----
+    function createMessageElement(role, htmlContent) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'msg';
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar ' + (role === 'assistant' ? 'avatar-bot' : 'avatar-user');
+      avatar.textContent = role === 'assistant' ? 'B' : '我';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble' + (role === 'user' ? ' user' : '');
+      bubble.innerHTML = htmlContent;
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = nowTime();
+
+      const right = document.createElement('div');
+      right.appendChild(bubble);
+      right.appendChild(meta);
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(right);
+
+      return wrapper;
+    }
+
+    function renderAdvice(advice) {
+      const { recommendations } = advice;
+      const blocks = recommendations.map(rec => {
+        const rows = rec.table.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+        const lines = rec.lines.map(l => `<li>${l}</li>`).join('');
+        return `
+          <div style="margin-top:6px">
+            <div style="font-weight:700">${rec.title}</div>
+            <div class="hint" style="margin:6px 0 4px">${rec.summary}</div>
+            <ul style="margin:0 0 6px 18px; padding:0">${lines}</ul>
+            <div class="alloc-table">
+              <table>
+                <thead>
+                  <tr><th>类别</th><th>建议占比</th><th>说明</th></tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const disclaimer = `
+        <details>
+          <summary>重要说明与风险提示</summary>
+          <div class="hint" style="margin-top:6px">
+            本回复基于关键词规则生成，不代表真实投顾意见，也不构成投资建议或收益承诺。市场有风险，投资需谨慎。请结合自身情况，并以官方合规文件与披露为准。
+          </div>
+        </details>
+      `;
+
+      return blocks + disclaimer;
+    }
+
+    // ---- 事件与主逻辑 ----
+    const messagesEl = $('#messages');
+    const inputEl = $('#prompt');
+    const sendBtn = $('#sendBtn');
+
+    function pushMessage(role, html) {
+      const node = createMessageElement(role, html);
+      messagesEl.appendChild(node);
+      scrollToBottom(messagesEl);
+      return node;
+    }
+
+    function showThinking() {
+      return pushMessage('assistant', `正在分析 <span class="loader"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>`);
+    }
+
+    function replaceMessageContent(msgNode, html) {
+      const bubble = msgNode.querySelector('.bubble');
+      if (bubble) bubble.innerHTML = html;
+    }
+
+    function onSend() {
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      // 追加用户消息
+      pushMessage('user', escapeHtml(text));
+
+      inputEl.value = '';
+      autoGrow(inputEl);
+
+      // 思考中占位
+      const thinkingNode = showThinking();
+
+      // 模拟处理耗时
+      setTimeout(() => {
+        const intel = parseUserIntent(text);
+        const advice = generateAdvice(intel);
+        const html = renderAdvice(advice);
+        replaceMessageContent(thinkingNode, html);
+        persistFromDOM();
+      }, 650);
+
+      persistFromDOM();
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function persistFromDOM() {
+      const items = Array.from(messagesEl.querySelectorAll('.msg')).map(msg => {
+        const isAssistant = msg.querySelector('.avatar-bot') != null;
+        const html = msg.querySelector('.bubble')?.innerHTML || '';
+        return { role: isAssistant ? 'assistant' : 'user', html };
+      });
+      saveHistory(items);
+    }
+
+    function restoreFromStorage() {
+      const items = loadHistory();
+      if (items.length === 0) {
+        // 初始欢迎语
+        pushMessage('assistant', '您好，我是银行智能投顾助手。请描述您的投资需求，例如风险偏好、目标年化、投资期限与预算等，我将为您给出参考配置。');
+        return;
+      }
+      items.forEach(m => pushMessage(m.role, m.html));
+    }
+
+    // 绑定事件
+    sendBtn.addEventListener('click', onSend);
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        onSend();
+      }
+    });
+
+    inputEl.addEventListener('input', () => autoGrow(inputEl));
+    window.addEventListener('load', () => autoGrow(inputEl));
+
+    $('#clearBtn').addEventListener('click', () => {
+      if (!confirm('确认清空对话？此操作不可撤销。')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      messagesEl.innerHTML = '';
+      restoreFromStorage();
+    });
+
+    $('#exportBtn').addEventListener('click', () => {
+      const data = loadHistory();
+      const exportText = data.map(d => `[${d.role === 'assistant' ? '助手' : '用户'}] ${d.html.replace(/<[^>]*>/g, '')}`).join('\n\n');
+      download('chat_export.txt', exportText);
+    });
+
+    $('#newChatBtn').addEventListener('click', () => {
+      localStorage.removeItem(STORAGE_KEY);
+      messagesEl.innerHTML = '';
+      restoreFromStorage();
+    });
+
+    $('#suggestBtn').addEventListener('click', () => {
+      inputEl.value = '我偏好平衡，预算30万元，理财期限3-5年，目标年化5%，并希望每月定投3000元';
+      autoGrow(inputEl);
+      inputEl.focus();
+    });
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        inputEl.value = chip.getAttribute('data-fill') || chip.textContent;
+        autoGrow(inputEl);
+        inputEl.focus();
+      });
+    });
+
+    // 首次渲染
+    restoreFromStorage();
+  </script>
+</body>
+</html>
