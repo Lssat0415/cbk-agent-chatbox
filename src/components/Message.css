@@ -1,0 +1,160 @@
+.message {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.message.assistant .message-avatar {
+  background: linear-gradient(145deg, #1e40af, #155eef);
+}
+
+.message.user .message-avatar {
+  background: linear-gradient(145deg, #0ea5e9, #0369a1);
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-bubble {
+  background: var(--bot);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  display: inline-block;
+  max-width: 100%;
+}
+
+.message-bubble.user {
+  background: var(--user);
+}
+
+.message-text {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.message-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--subtle);
+}
+
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--subtle);
+  font-size: 14px;
+}
+
+/* Advice content styles */
+.advice-content {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.recommendation-block {
+  margin-bottom: 20px;
+}
+
+.recommendation-block:last-child {
+  margin-bottom: 0;
+}
+
+.rec-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.rec-summary {
+  color: var(--subtle);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.rec-lines {
+  margin: 8px 0 12px 20px;
+  padding: 0;
+  list-style: disc;
+}
+
+.rec-lines li {
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.alloc-table {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.alloc-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.alloc-table th,
+.alloc-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.alloc-table thead {
+  background: #f9fafb;
+}
+
+.alloc-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #0e7490;
+  border: 1px solid #cffafe;
+}
+
+.disclaimer {
+  margin-top: 12px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.disclaimer summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--subtle);
+}
+
+.disclaimer-content {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--subtle);
+  line-height: 1.5;
+}
