@@ -5,22 +5,23 @@
 }
 
 .message-avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-weight: 700;
+  font-weight: 600;
   color: white;
   flex-shrink: 0;
+  font-size: 14px;
 }
 
 .message.assistant .message-avatar {
-  background: linear-gradient(145deg, #1e40af, #155eef);
+  background: var(--primary);
 }
 
 .message.user .message-avatar {
-  background: linear-gradient(145deg, #0ea5e9, #0369a1);
+  background: var(--subtle);
 }
 
 .message-content {
@@ -31,9 +32,8 @@
 .message-bubble {
   background: var(--bot);
   border: 1px solid var(--border);
-  padding: 14px 16px;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  padding: 12px 16px;
+  border-radius: 8px;
   display: inline-block;
   max-width: 100%;
 }
@@ -102,7 +102,7 @@
 .alloc-table {
   margin-top: 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -114,13 +114,13 @@
 
 .alloc-table th,
 .alloc-table td {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border);
   text-align: left;
 }
 
 .alloc-table thead {
-  background: #f9fafb;
+  background: var(--sidebar-bg);
 }
 
 .alloc-table tbody tr:last-child td {
@@ -139,9 +139,9 @@
 
 .disclaimer {
   margin-top: 12px;
-  background: #f8fafc;
+  background: var(--sidebar-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 10px 14px;
 }
 
@@ -157,4 +157,22 @@
   font-size: 12px;
   color: var(--subtle);
   line-height: 1.5;
+}
+
+/* Streaming message styles */
+.streaming-message {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.streaming-cursor {
+  animation: blink 1s infinite;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }

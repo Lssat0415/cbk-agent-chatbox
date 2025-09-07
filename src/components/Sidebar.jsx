@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import './Sidebar.css'
 
 function Sidebar({
@@ -9,7 +9,9 @@ function Sidebar({
   onNewConversation,
   onDeleteConversation,
   isOpen,
-  onToggle
+  onToggle,
+  isLoading = false,
+  header
 }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -41,65 +43,81 @@ function Sidebar({
   return (
     <>
       <div className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <div className="sidebar-header">
-          <button 
-            className="btn btn-primary new-chat-btn"
-            onClick={onNewConversation}
-            title="新对话"
-          >
-            <Plus size={18} />
-            {isOpen && <span>新对话</span>}
-          </button>
-          
-          <button 
-            className="btn btn-icon toggle-btn"
-            onClick={onToggle}
-            title={isOpen ? '收起侧边栏' : '展开侧边栏'}
-          >
-            {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-          </button>
-        </div>
+        {/* Header at the top of sidebar */}
+        {isOpen && header && (
+          <div className="sidebar-top-header">
+            {header}
+            <button 
+              className="btn btn-icon toggle-btn"
+              onClick={onToggle}
+              title="收起侧边栏"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          </div>
+        )}
+        
+        {!isOpen && (
+          <div className="sidebar-header">
+            <button 
+              className="btn btn-icon toggle-btn"
+              onClick={onToggle}
+              title="展开侧边栏"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        )}
 
         {isOpen && (
           <div className="conversation-list">
-            {Object.entries(groupedConversations).map(([dateKey, convs]) => (
-              <div key={dateKey} className="conversation-group">
-                <div className="group-date">{dateKey}</div>
-                {convs.map(conv => (
-                  <div
-                    key={conv.id}
-                    className={`conversation-item ${
-                      conv.id === currentConversationId ? 'active' : ''
-                    }`}
-                    onClick={() => onSelectConversation(conv.id)}
-                  >
-                    <MessageSquare size={16} className="conv-icon" />
-                    <span className="conv-title truncate" title={conv.title}>
-                      {conv.title}
-                    </span>
-                    <button
-                      className="delete-btn"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (confirm('确认删除这个对话？')) {
-                          onDeleteConversation(conv.id)
-                        }
-                      }}
-                      title="删除对话"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+            {isLoading ? (
+              <div className="loading-state">
+                <Loader2 size={24} className="loading-spinner" />
+                <p>加载对话中...</p>
+              </div>
+            ) : (
+              <>
+                {Object.entries(groupedConversations).map(([dateKey, convs]) => (
+                  <div key={dateKey} className="conversation-group">
+                    <div className="group-date">{dateKey}</div>
+                    {convs.map(conv => (
+                      <div
+                        key={conv.id}
+                        className={`conversation-item ${
+                          conv.id === currentConversationId ? 'active' : ''
+                        }`}
+                        onClick={() => onSelectConversation(conv.id)}
+                      >
+                        <MessageSquare size={16} className="conv-icon" />
+                        <span className="conv-title truncate" title={conv.title}>
+                          {conv.title}
+                        </span>
+                        <button
+                          className="delete-btn"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (confirm('确认删除这个对话？')) {
+                              onDeleteConversation(conv.id)
+                            }
+                          }}
+                          title="删除对话"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 ))}
-              </div>
-            ))}
-            
-            {conversations.length === 0 && (
-              <div className="empty-state">
-                <MessageSquare size={32} />
-                <p>暂无对话历史</p>
-                <p className="hint">点击"新对话"开始</p>
-              </div>
+                
+                {conversations.length === 0 && (
+                  <div className="empty-state">
+                    <MessageSquare size={32} />
+                    <p>暂无对话历史</p>
+                    <p className="hint">点击"新对话"开始</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -109,7 +127,15 @@ function Sidebar({
       {isOpen && (
         <div 
           className="sidebar-overlay"
-          onClick={onToggle}
+          onClick={(e) => {
+            // Prevent accidental closing during input or scrolling
+            e.preventDefault()
+            e.stopPropagation()
+            // Add a small delay to prevent accidental triggers
+            setTimeout(() => {
+              onToggle()
+            }, 100)
+          }}
         />
       )}
     </>

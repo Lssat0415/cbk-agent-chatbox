@@ -1,7 +1,13 @@
 .app {
   display: flex;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height for better mobile support */
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .main-content {
@@ -10,4 +16,9 @@
   flex-direction: column;
   min-width: 0;
   transition: margin-left 0.3s ease;
+  position: relative;
+  z-index: 1; /* Ensure main content stays below sidebar */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }

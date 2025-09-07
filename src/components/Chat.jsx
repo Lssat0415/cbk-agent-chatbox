@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Sparkles } from 'lucide-react'
+import { Send, Sparkles, Plus, Download, Trash2 } from 'lucide-react'
 import Message from './Message'
 import './Chat.css'
 
@@ -11,18 +11,31 @@ const EXAMPLE_PROMPTS = [
   '我偏好平衡，预算30万元，理财期限3-5年，目标年化5%，并希望每月定投3000元'
 ]
 
-function Chat({ conversation, onSendMessage }) {
+function Chat({ conversation, onSendMessage, onClear, onExport, onNewChat }) {
   const [inputValue, setInputValue] = useState('')
   const [isComposing, setIsComposing] = useState(false)
+  const [isInputFocused, setIsInputFocused] = useState(false)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Use a more gentle scroll approach to avoid triggering sidebar issues
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest'
+      })
+    }
   }
 
   useEffect(() => {
-    scrollToBottom()
+    // Add a small delay to prevent interference with sidebar
+    const timer = setTimeout(() => {
+      scrollToBottom()
+    }, 100)
+    
+    return () => clearTimeout(timer)
   }, [conversation?.messages])
 
   const handleSend = () => {
@@ -72,6 +85,34 @@ function Chat({ conversation, onSendMessage }) {
 
   return (
     <div className="chat-container">
+      <div className="chat-header">
+        <div className="chat-header-content">
+          <div className="chat-actions">
+            <button
+              className="btn btn-icon"
+              onClick={onNewChat}
+              title="新对话"
+            >
+              <Plus size={16} />
+            </button>
+            <button
+              className="btn btn-icon"
+              onClick={onExport}
+              title="导出对话"
+            >
+              <Download size={16} />
+            </button>
+            <button
+              className="btn btn-icon"
+              onClick={onClear}
+              title="清空对话"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+      
       <div className="messages-container">
         <div className="messages">
           {conversation.messages.map((message, index) => (
@@ -81,7 +122,7 @@ function Chat({ conversation, onSendMessage }) {
         </div>
       </div>
 
-      <div className="composer">
+      <div className={`composer ${isInputFocused ? 'input-focused' : ''}`}>
         <div className="input-wrapper">
           <label htmlFor="prompt" className="input-label">
             请输入投资需求（例如：我偏好稳健，期限3年，目标年化4%）：
@@ -95,7 +136,9 @@ function Chat({ conversation, onSendMessage }) {
               onKeyDown={handleKeyDown}
               onCompositionStart={() => setIsComposing(true)}
               onCompositionEnd={() => setIsComposing(false)}
-              placeholder="输入你的问题，例如：我预算30万，期望稳健增值，理财期限2-3年…"
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
+              placeholder=""
               rows="1"
               className="message-input"
             />
@@ -118,10 +161,6 @@ function Chat({ conversation, onSendMessage }) {
           发送
         </button>
       </div>
-
-      <footer className="chat-footer">
-        风险提示：本工具为演示用途，内容不构成任何投资建议或收益承诺。市场有风险，投资需谨慎。如需个性化方案，请联系持牌投顾并以官方合规文件为准。
-      </footer>
     </div>
   )
 }

@@ -4,6 +4,34 @@
   flex-direction: column;
   background: var(--bg);
   position: relative;
+  height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height for better mobile support */
+  overflow: hidden;
+}
+
+.chat-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  height: 60px;
+}
+
+.chat-header-content {
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.chat-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .chat-empty {
@@ -24,16 +52,19 @@
 .messages-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
-  max-width: 900px;
+  max-width: 800px;
   width: 100%;
   margin: 0 auto;
+  height: calc(100vh - 60px - 120px); /* Fixed height minus chat-header(60px), composer(120px) */
+  height: calc(100dvh - 60px - 120px); /* Use dynamic viewport height */
 }
 
 .messages {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .composer {
@@ -43,9 +74,13 @@
   display: flex;
   gap: 12px;
   align-items: flex-end;
-  max-width: 900px;
+  max-width: 800px;
   width: 100%;
   margin: 0 auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  flex-shrink: 0;
 }
 
 .input-wrapper {
@@ -69,21 +104,21 @@
 .message-input {
   width: 100%;
   resize: none;
-  min-height: 48px;
+  min-height: 44px;
   max-height: 180px;
   padding: 12px 44px 12px 12px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  transition: border 0.15s ease, box-shadow 0.15s ease;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
   background: var(--card);
 }
 
 .message-input:focus {
-  border-color: #b7c7ff;
-  box-shadow: 0 0 0 4px #e6ecff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1);
 }
 
 .example-btn {
@@ -93,24 +128,25 @@
   background: transparent;
   border: 1px solid var(--border);
   color: var(--subtle);
-  padding: 8px;
-  border-radius: 8px;
+  padding: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .example-btn:hover {
-  background: var(--primary-100);
+  background: var(--sidebar-hover);
   color: var(--primary);
   border-color: var(--primary);
 }
 
 .send-btn {
-  height: 48px;
-  padding: 0 20px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 6px;
 }
 
 .send-btn:disabled {
@@ -118,21 +154,21 @@
   cursor: not-allowed;
 }
 
-.chat-footer {
-  padding: 12px 20px;
-  max-width: 900px;
-  width: 100%;
-  margin: 0 auto;
-  color: var(--subtle);
-  font-size: 12px;
-  text-align: center;
-  line-height: 1.5;
-}
 
 /* Mobile responsive */
 @media (max-width: 640px) {
+  .chat-header {
+    padding: 12px 16px;
+  }
+  
+  .chat-header-content {
+    max-width: none;
+  }
+  
   .messages-container {
     padding: 16px;
+    height: calc(100vh - 60px - 140px); /* Adjust for mobile: chat-header(60px), composer(140px) */
+    height: calc(100dvh - 60px - 140px);
   }
   
   .composer {
@@ -146,5 +182,32 @@
   
   .input-label {
     display: none;
+  }
+}
+
+/* Prevent layout shifts that might affect sidebar */
+@media (max-width: 768px) {
+  .chat-container {
+    position: relative;
+    z-index: 1; /* Ensure chat content stays below sidebar */
+  }
+  
+  .composer {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Prevent viewport changes from affecting sidebar */
+  .message-input {
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+  
+  /* When input is focused, ensure composer stays stable */
+  .composer.input-focused {
+    position: sticky;
+    bottom: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    z-index: 10; /* Higher than normal but still below sidebar */
   }
 }

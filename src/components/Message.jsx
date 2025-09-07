@@ -80,8 +80,30 @@ function Message({ message }) {
       )
     }
 
+    if (message.isStreaming) {
+      return (
+        <div className="streaming-message">
+          <div className="message-text">{message.content}</div>
+          <span className="streaming-cursor">|</span>
+        </div>
+      )
+    }
+
     if (message.isAdvice && typeof message.content === 'object') {
       return renderAdvice(message.content)
+    }
+
+    // Handle API response - could be string or object
+    if (typeof message.content === 'string') {
+      // Try to parse as JSON for structured advice
+      try {
+        const parsedContent = JSON.parse(message.content)
+        if (parsedContent.recommendations) {
+          return renderAdvice(parsedContent)
+        }
+      } catch (e) {
+        // Not JSON, treat as plain text
+      }
     }
 
     return <div className="message-text">{message.content}</div>

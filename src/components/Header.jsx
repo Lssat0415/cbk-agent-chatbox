@@ -9,12 +9,11 @@ function Header({ onClear, onExport, onNewChat }) {
         <div className="brand">
           <div className="logo" aria-hidden="true">🏦</div>
           <div className="title">
-            <b>智能投顾助手</b>
-            <span>Bank Advisory • 演示版（仅供参考）</span>
+            <b>智能投顾</b>
           </div>
         </div>
         
-        <div className="header-actions">
+{/*<div className="header-actions">
           <button 
             className="btn"
             onClick={onClear}
@@ -41,7 +40,7 @@ function Header({ onClear, onExport, onNewChat }) {
             <Plus size={16} />
             <span className="btn-text">新对话</span>
           </button>
-        </div>
+        </div>*/}
       </div>
     </header>
   )
